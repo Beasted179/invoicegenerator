@@ -1,25 +1,28 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from 'react';
+import Header from './components/Header';
+import LoadForm from './components/LoadForm';
+import InvoiceDisplay from './components/InvoiceDisplay.js';
 
-function App() {
+const App = () => {
+  const [invoiceAmount, setInvoiceAmount] = useState(0);
+
+  // Function to calculate invoice amount based on input data
+  const calculateInvoice = (data) => {
+    // Calculate and update invoiceAmount
+    setInvoiceAmount(/* calculated value */);
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <Header />
+      <main>
+        <LoadForm calculateInvoice={calculateInvoice} />
+        <InvoiceDisplay invoiceAmount={invoiceAmount} />
+      </main>
     </div>
   );
-}
+};
 
 export default App;
+
+
