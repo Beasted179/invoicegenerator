@@ -1,15 +1,22 @@
 // api.js
-
-const generatePDF = async (data) => {
+export async function generatePDF(deductionData) {
     try {
-      const response = await fetch(`/generate-pdf?loads=${data.loads}&calculatedAmount=${data.calculatedAmount}&cashAdvance=${data.cashAdvance}&insurance=${data.insurance}`);
-      const pdfDataUri = await response.text();
-      return pdfDataUri;
+      const response = await fetch('/generate-pdf', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(deductionData),
+      });
+    
+      if (response.ok) {
+        return await response.blob();
+      } else {
+        throw new Error('Error generating PDF');
+      }
     } catch (error) {
-      console.error('Error generating PDF:', error);
-      throw error;
+      throw new Error('Error generating PDF:', error);
     }
-  };
+  }
   
-export default generatePDF
   

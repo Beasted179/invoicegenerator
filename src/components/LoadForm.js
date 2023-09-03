@@ -145,28 +145,33 @@ const LoadForm = () => {
     setLoads(updatedLoads);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!isEightPercentChecked && !isThirtyPercentChecked) {
       alert('Please select at least one percentage option.');
       return;
     }
-  
-    let calculatedAmountValue = 0;
-    if (isEightPercentChecked) {
-      const totalDeductions = loads.length * 50 + cashAdvance + insurance;
-      const totalAmount = loads.reduce((total, load) => total + parseFloat(load.amount), 0);
-      const remainingAmount = totalAmount - totalDeductions;
-      calculatedAmountValue = remainingAmount - (remainingAmount * 0.08);
-    } else if (isThirtyPercentChecked) {
-      const totalDeductions = cashAdvance + insurance;
-      calculatedAmountValue = (loads.reduce((total, load) => total + parseFloat(load.amount), 0) - totalDeductions) * 0.30;
-      setCalculatedAmount(calculatedAmountValue);
+
+    const deductionData = {
+      isEightPercentChecked,
+      isThirtyPercentChecked,
+      loads,
+      cashAdvance,
+      insurance,
+    };
+
+    try {
+      const pdfBlob = await generatePDF(deductionData);
+
+      const downloadUrl = URL.createObjectURL(pdfBlob);
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = 'invoice.pdf';
+      document.body.appendChild(link);
+      link.click();
+      URL.revokeObjectURL(downloadUrl);
+    } catch (error) {
+      console.error('Error generating PDF:', error);
     }
-    
-    
-    setFormSubmitted(true);
-    setShowPDFPreview(true);
-    console.log('Calculated Amount:', calculatedAmountValue);
   };
   return (
     <Container>

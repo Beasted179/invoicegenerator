@@ -3,6 +3,7 @@ const jsPDF = require('jspdf');
 const app = express();
 
 app.get('/generate-pdf', (req, res) => {
+    console.log(req)
   const { loads, calculatedAmount, cashAdvance, insurance } = req.query;
 
   // Create a new instance of jsPDF
