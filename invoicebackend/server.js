@@ -1,37 +1,21 @@
 const express = require('express');
-const jsPDF = require('jspdf');
+const cors = require('cors');
 const app = express();
+const port = process.env.PORT || 3001;
 
-app.get('/generate-pdf', (req, res) => {
-    console.log(req)
-  const { loads, calculatedAmount, cashAdvance, insurance } = req.query;
+app.use(cors());
+app.use(express.json());
 
-  // Create a new instance of jsPDF
-  const doc = new jsPDF();
+// Your /generate-invoice route handler (assuming you have an invoiceController)
+const invoiceController = require('./controllers/invoiceController');
+app.post('/api/generate-invoice', invoiceController.generateInvoice);
 
-  // Add content to the PDF
-  let yOffset = 30;
-  loads.forEach((load, index) => {
-    doc.text(`Load ${index + 1}:`, 10, yOffset);
-    doc.text(`Broker Name: ${load.brokerName}`, 15, yOffset + 10);
-    doc.text(`Date: ${load.date}`, 15, yOffset + 20);
-    doc.text(`Notes: ${load.notes}`, 15, yOffset + 30);
-    doc.text(`Amount: $${load.amount}`, 15, yOffset + 40);
-    yOffset += 50;
-  });
-
-  doc.text(`Calculated Amount: $${calculatedAmount}`, 10, yOffset);
-  doc.text(`Cash Advance: $${cashAdvance}`, 10, yOffset + 10);
-  doc.text(`Insurance: $${insurance}`, 10, yOffset + 20);
-
-  // Save the PDF and send it as a response
-  const pdfContent = doc.output('datauristring');
-  res.setHeader('Content-Type', 'application/pdf');
-  res.setHeader('Content-Disposition', 'attachment; filename=invoice.pdf');
-  res.send(pdfContent);
+app.get('/api/hello', (req, res) => {
+  res.json({ message: 'Hello, World!' });
 });
 
-app.listen(3000, () => {
-  console.log('Server is running on port 3000');
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
 });
+
 
