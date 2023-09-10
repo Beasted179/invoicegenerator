@@ -88,9 +88,10 @@ const generateInvoice = async (req, res) => {
       doc.text(`- $${eightPercDeduction}`, { width: 200, align: 'left' });
     }
     if(isThirtyPercentChecked) {
-    const calculatedAmountText = `$${calculatedAmount.toFixed(2)}`;
+    const calculatedAmountText = `$${totalBeforeDeductions.toFixed(2)}`;
     doc.text(calculatedAmountText, { width: 200 + dollarSignWidth, align: 'left' });
-    }
+      totalAfterDeductions = totalBeforeDeductions - insurance - cashAdvance
+  }
     
     const cashAdvanceText = `- $${cashAdvance}`;
     doc.text(`Cash Advance:`, { width: 200, align: 'left' });
