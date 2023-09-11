@@ -105,16 +105,10 @@ const generateInvoice = async (req, res) => {
     
       // Calculate the amount given to the driver (30%)
       const amountToDriver = totalBeforeDeductions * 0.3; // 30% to driver
-    
+        console.log(amountToDriver)
       // Subtract cash advance and insurance from the amount given to the driver
       totalAfterDeductions = amountToDriver - cashAdvance - insurance;
-    
-      // Display the calculated amount to the driver
-      const calculatedAmountText = `$${amountToDriver.toFixed(2)}`;
-      doc.text(calculatedAmountText, {
-        width: 200 + dollarSignWidth,
-        align: "left",
-      });
+        console.log(totalAfterDeductions)
     }
     
     
