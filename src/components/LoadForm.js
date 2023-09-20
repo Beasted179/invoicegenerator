@@ -128,13 +128,19 @@ const LoadForm = () => {
   };
   const handleDeductionChange = (event, index) => {
     const { name, value } = event.target;
-    console.log(name, value)
-    const updatedDeductions = [...deductions];
-    
-    updatedDeductions[index] = { ...updatedDeductions[index], [name]: value };
-    console.log(updatedDeductions)
+  
+    // Convert the value to a number using parseFloat
+    const numericValue = parseFloat(value);
+  
+    // Create a copy of the deductions array with the updated value
+    const updatedDeductions = deductions.map((deduction, i) =>
+      i === index ? { ...deduction, [name]: numericValue } : deduction
+    );
+  
+    // Update the state with the modified deductions array
     setDeductions(updatedDeductions);
   };
+  
 
   const addLoadRow = () => {
     setLoads([
