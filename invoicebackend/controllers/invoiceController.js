@@ -14,7 +14,7 @@ const generateInvoice = async (req, res) => {
       deductions,
       overAllNote
     } = req.body;
-
+    console.log(deductions)
     // Calculate the total amount before deductions
     const totalBeforeDeductions = loads.reduce(
       (total, load) => total + parseFloat(load.amount),
