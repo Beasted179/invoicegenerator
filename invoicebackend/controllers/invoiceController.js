@@ -14,7 +14,7 @@ const generateInvoice = async (req, res) => {
       deductions,
       overAllNote
     } = req.body;
-    console.log(deductions)
+
     // Calculate the total amount before deductions
     const totalBeforeDeductions = loads.reduce(
       (total, load) => total + parseFloat(load.amount),
@@ -22,10 +22,16 @@ const generateInvoice = async (req, res) => {
     );
 
     let calculatedAmount;
-    let deductionAmount = 0;
     let deductionDescription = "";
     let totalAfterDeductions = 0;
     const loadsAdded = loads.length;
+
+    // Calculate deductions
+    let totalDeductions = 0;
+    deductions.forEach((deduction) => {
+      const deductionAmount = parseFloat(deduction.amount);
+      totalDeductions += deductionAmount;
+    });
 
     // Determine the scenario and calculate the calculatedAmount and deductionDescription
     if (isEightPercentChecked) {
@@ -34,15 +40,13 @@ const generateInvoice = async (req, res) => {
       const eightPercDeduction = calculatedAmount * 0.08; // 8% deduction
       deductionDescription = '$50 deduction per load for 8% scenario';
       totalAfterDeductions =
-        calculatedAmount - eightPercDeduction - insurance - cashAdvance;
-    
-      // Use map to transform deductions and then subtract their amounts
-      deductions.map((deduction) => {
-        const deductionAmount = parseFloat(deduction.amount);
-        totalAfterDeductions -= deductionAmount;
-      });
+        calculatedAmount - eightPercDeduction - insurance - cashAdvance - totalDeductions;
+    } else if (isThirtyPercentChecked) {
+      // Calculate the amount given to the driver (30%)
+      const amountToDriver = totalBeforeDeductions * 0.3; // 30% to driver
+      totalAfterDeductions = amountToDriver - cashAdvance - insurance - totalDeductions;
     } else {
-      return null;
+      return res.status(400).send('Invalid scenario');
     }
 
     let doc = new PDFDocument({ margin: 30, size: "A4" });
@@ -161,12 +165,12 @@ const generateInvoice = async (req, res) => {
     console.error('Error generating PDF:', error);
     res.status(500).send('Error generating PDF');
   }
-  
 };
 
 module.exports = {
   generateInvoice,
 };
+
 
 
 
