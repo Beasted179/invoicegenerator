@@ -73,15 +73,16 @@ const DeductionRow = ({ deduction, index, handleDeductionChange, deleteDeduction
   return (
     <Grid container spacing={2} key={index} sx={{ marginTop: '20px' }}>
       <Grid item xs={12} sm={3}>
-        <TextField
-          fullWidth
-          variant="outlined"
-          type="text"
-          label="Deduction Name"
-          value={deduction.name}
-          name="name"
-          onChange={(event) => handleDeductionChange(event, index)}
-        />
+      <TextField
+  fullWidth
+  variant="outlined"
+  type="text"
+  label="Deduction Name"
+  value={deduction.name}  // Make sure this is correctly bound to the name property
+  name="name"
+  onChange={(event) => handleDeductionChange(event, index)}
+/>
+
       </Grid>
       <Grid item xs={12} sm={3}>
         <TextField
@@ -129,12 +130,9 @@ const LoadForm = () => {
   const handleDeductionChange = (event, index) => {
     const { name, value } = event.target;
   
-    // Convert the value to a number using parseFloat
-    const numericValue = parseFloat(value);
-  
     // Create a copy of the deductions array with the updated value
     const updatedDeductions = deductions.map((deduction, i) =>
-      i === index ? { ...deduction, [name]: numericValue } : deduction
+      i === index ? { ...deduction, [name]: value } : deduction
     );
   
     // Update the state with the modified deductions array

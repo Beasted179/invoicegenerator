@@ -121,7 +121,7 @@ const generateInvoice = async (req, res) => {
     }
     if (deductions.length > 0) {
       doc.text("Deductions:", { width: 200, align: "left" });
-    
+      console.log(deductions)
       deductions.forEach((deduction) => {
         const deductionText = `- ${deduction.name}: $${deduction.amount.toFixed(2)}`;
         doc.text(deductionText, {
