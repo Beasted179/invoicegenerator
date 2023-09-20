@@ -3,7 +3,7 @@ const PDFDocument = require("pdfkit-table");
 
 const generateInvoice = async (req, res) => {
   try {
-    console.log(deductions)
+    
     const {
       dateCreated,
       driverName,
@@ -15,7 +15,7 @@ const generateInvoice = async (req, res) => {
       deductions,
       overAllNote
     } = req.body;
-    
+    console.log(deductions)
     // Calculate the total amount before deductions
     const totalBeforeDeductions = loads.reduce(
       (total, load) => total + parseFloat(load.amount),
