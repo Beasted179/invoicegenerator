@@ -152,19 +152,19 @@ const generateInvoice = async (req, res) => {
       width: 200 + dollarSignWidth,
       align: "left",
     }); 
-
+    if (overAllNote) {
+      doc.text("Note:", { width: 200, align: "left" });
+      doc.text(overAllNote, {
+        width: 500, // Adjust the width as needed
+        align: "left",
+      });
+    }
     doc.end();
   } catch (error) {
     console.error('Error generating PDF:', error);
     res.status(500).send('Error generating PDF');
   }
-  if (overAllNote) {
-    doc.text("Note:", { width: 200, align: "left" });
-    doc.text(overAllNote, {
-      width: 500, // Adjust the width as needed
-      align: "left",
-    });
-  }
+  
 };
 
 module.exports = {
