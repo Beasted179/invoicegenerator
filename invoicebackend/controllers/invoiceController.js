@@ -3,7 +3,6 @@ const PDFDocument = require("pdfkit-table");
 
 const generateInvoice = async (req, res) => {
   try {
-    
     const {
       dateCreated,
       driverName,
@@ -36,18 +35,15 @@ const generateInvoice = async (req, res) => {
       deductionDescription = '$50 deduction per load for 8% scenario';
       totalAfterDeductions =
         calculatedAmount - eightPercDeduction - insurance - cashAdvance;
-        deductions.forEach((deduction) => {
-          totalAfterDeductions -= parseFloat(deduction.amount);
-        });
-    } else if (isThirtyPercentChecked) {
-      // Calculate deductions for the 30 percent scenario
-      calculatedAmount = totalBeforeDeductions * 0.7; // 30% to driver
-      deductions.forEach((deduction) => {
-        totalAfterDeductions -= parseFloat(deduction.amount);
-      }); 
+    
+      // Use map to transform deductions and then subtract their amounts
+      deductions.map((deduction) => {
+        const deductionAmount = parseFloat(deduction.amount);
+        totalAfterDeductions -= deductionAmount;
+      });
     } else {
       return null;
-    } 
+    }
 
     let doc = new PDFDocument({ margin: 30, size: "A4" });
     res.setHeader("Content-Type", "application/pdf");

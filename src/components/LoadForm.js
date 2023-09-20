@@ -128,8 +128,11 @@ const LoadForm = () => {
   };
   const handleDeductionChange = (event, index) => {
     const { name, value } = event.target;
+    console.log(name, value)
     const updatedDeductions = [...deductions];
+    
     updatedDeductions[index] = { ...updatedDeductions[index], [name]: value };
+    console.log(updatedDeductions)
     setDeductions(updatedDeductions);
   };
 
@@ -178,6 +181,7 @@ const LoadForm = () => {
 
   
   const handleSubmit = async () => {
+    console.log(deductions)
     const invoiceData = {
       loads: loads,
       cashAdvance: cashAdvance,
@@ -186,6 +190,7 @@ const LoadForm = () => {
       isThirtyPercentChecked: isThirtyPercentChecked,
       driverName: driverName,
       dateCreated: dateCreated,
+      deductions: deductions,
       overAllNote: overAllNote
     };
     try {
