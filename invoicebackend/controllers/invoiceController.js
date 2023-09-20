@@ -11,6 +11,8 @@ const generateInvoice = async (req, res) => {
       insurance,
       isEightPercentChecked,
       isThirtyPercentChecked,
+      deductions,
+      overAllNote
     } = req.body;
 
     // Calculate the total amount before deductions
@@ -33,12 +35,18 @@ const generateInvoice = async (req, res) => {
       deductionDescription = '$50 deduction per load for 8% scenario';
       totalAfterDeductions =
         calculatedAmount - eightPercDeduction - insurance - cashAdvance;
+        deductions.forEach((deduction) => {
+          totalAfterDeductions -= parseFloat(deduction.amount);
+        });
     } else if (isThirtyPercentChecked) {
       // Calculate deductions for the 30 percent scenario
       calculatedAmount = totalBeforeDeductions * 0.7; // 30% to driver
+      deductions.forEach((deduction) => {
+        totalAfterDeductions -= parseFloat(deduction.amount);
+      }); 
     } else {
       return null;
-    }
+    } 
 
     let doc = new PDFDocument({ margin: 30, size: "A4" });
     res.setHeader("Content-Type", "application/pdf");
@@ -110,7 +118,17 @@ const generateInvoice = async (req, res) => {
       totalAfterDeductions = amountToDriver - cashAdvance - insurance;
         console.log(totalAfterDeductions)
     }
+    if (deductions.length > 0) {
+      doc.text("Deductions:", { width: 200, align: "left" });
     
+      deductions.forEach((deduction) => {
+        const deductionText = `- ${deduction.name}: $${deduction.amount.toFixed(2)}`;
+        doc.text(deductionText, {
+          width: 200 + dollarSignWidth,
+          align: "left",
+        });
+      });
+    }
     
 
     const cashAdvanceText = `- $${cashAdvance}`;
@@ -139,6 +157,13 @@ const generateInvoice = async (req, res) => {
   } catch (error) {
     console.error('Error generating PDF:', error);
     res.status(500).send('Error generating PDF');
+  }
+  if (overAllNote) {
+    doc.text("Note:", { width: 200, align: "left" });
+    doc.text(overAllNote, {
+      width: 500, // Adjust the width as needed
+      align: "left",
+    });
   }
 };
 

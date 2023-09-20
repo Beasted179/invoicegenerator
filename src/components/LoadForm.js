@@ -69,6 +69,41 @@ const LoadRow = ({ load, index, handleInputChange, deleteLoadRow }) => {
     </Grid>
   );
 };
+const DeductionRow = ({ deduction, index, handleDeductionChange, deleteDeductionRow }) => {
+  return (
+    <Grid container spacing={2} key={index} sx={{ marginTop: '20px' }}>
+      <Grid item xs={12} sm={3}>
+        <TextField
+          fullWidth
+          variant="outlined"
+          type="text"
+          label="Deduction Name"
+          value={deduction.name}
+          name="name"
+          onChange={(event) => handleDeductionChange(event, index)}
+        />
+      </Grid>
+      <Grid item xs={12} sm={3}>
+        <TextField
+          fullWidth
+          variant="outlined"
+          type="number"
+          label="Deduction Amount"
+          value={deduction.amount}
+          name="amount"
+          onChange={(event) => handleDeductionChange(event, index)}
+        />
+      </Grid>
+      <Grid item xs={12}>
+        <DeleteIcon
+          color="secondary"
+          onClick={() => deleteDeductionRow(index)}
+          style={{ margin: '8px' }}
+        />
+      </Grid>
+    </Grid>
+  );
+};
 
 const LoadForm = () => {
   const [loads, setLoads] = useState([]);
@@ -81,6 +116,8 @@ const LoadForm = () => {
   const [generatedPDF, setGeneratedPDF] = useState(null);
   const [driverName, setDriverName] = useState('');
   const [dateCreated, setDateCreated] = useState('');
+  const [overAllNote, setOverallNote] = useState('');
+  const [deductions, setDeductions] = useState([]);
 
   const handleInputChange = (event, index) => {
     const { name, value, checked } = event.target;
@@ -88,6 +125,12 @@ const LoadForm = () => {
       i === index ? { ...load, [name]: name === 'isThirtyPercent' ? checked : value } : load
     );
     setLoads(updatedLoads);
+  };
+  const handleDeductionChange = (event, index) => {
+    const { name, value } = event.target;
+    const updatedDeductions = [...deductions];
+    updatedDeductions[index] = { ...updatedDeductions[index], [name]: value };
+    setDeductions(updatedDeductions);
   };
 
   const addLoadRow = () => {
@@ -97,6 +140,15 @@ const LoadForm = () => {
         brokerName: '',
         date: '',
         notes: '',
+        amount: '',
+      },
+    ]);
+  };
+  const addDeductionRow = () => {
+    setDeductions([
+      ...deductions,
+      {
+        name: '',
         amount: '',
       },
     ]);
@@ -118,7 +170,13 @@ const LoadForm = () => {
     updatedLoads.splice(index, 1);
     setLoads(updatedLoads);
   };
+  const deleteDeductionRow = (index) => {
+    const updatedDeductions = [...deductions];
+    updatedDeductions.splice(index, 1);
+    setDeductions(updatedDeductions);
+  };
 
+  
   const handleSubmit = async () => {
     const invoiceData = {
       loads: loads,
@@ -128,8 +186,8 @@ const LoadForm = () => {
       isThirtyPercentChecked: isThirtyPercentChecked,
       driverName: driverName,
       dateCreated: dateCreated,
+      overAllNote: overAllNote
     };
-
     try {
       const pdfBlob = await generatePDF(invoiceData);
       console.log(pdfBlob);
@@ -177,6 +235,7 @@ const LoadForm = () => {
             deleteLoadRow={() => deleteLoadRow(index)}
           />
         ))}
+        
         <Grid container spacing={2}>
           <Grid item xs={12}>
             <Button variant="contained" color="primary" onClick={addLoadRow}>
@@ -205,6 +264,21 @@ const LoadForm = () => {
               />
             </div>
           </Grid>
+          <Grid Grid item xs={12}>
+          {deductions.map((deduction, index) => (
+        <DeductionRow
+          key={index}
+          index={index}
+          deduction={deduction}
+          handleDeductionChange={handleDeductionChange}
+          deleteDeductionRow={() => deleteDeductionRow(index)}
+        />
+      ))}
+          <Button variant="contained" color="primary" onClick={addDeductionRow} >
+              Add Deduction
+            </Button>
+          </Grid>
+          
           <Grid item xs={12}>
             <TextField
               fullWidth
@@ -223,6 +297,16 @@ const LoadForm = () => {
               label="Insurance"
               value={insurance}
               onChange={(event) => setInsurance(parseFloat(event.target.value))}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              variant="outlined"
+              type="text"
+              label="Notes"
+              value={overAllNote}
+              onChange={(event) => setOverallNote(event.target.value)}
             />
           </Grid>
           <Grid item xs={12}>
