@@ -72,6 +72,9 @@ const generateInvoice = async (req, res) => {
     const dollarSignWidth = doc.widthOfString("$");
 
     if (isEightPercentChecked) {
+      const fiftyDeductionText = `- $50 x ${loadsAdded.toFixed(0)}`; // Fixed to 0 decimal places
+doc.text("$50 per load", { width: 200, align: "left" });
+doc.text(fiftyDeductionText, { width: 200, align: "left" });
       let totalDeductionAmount = 0; // Total deduction amount
     
       if (deductions.length > 0) {
