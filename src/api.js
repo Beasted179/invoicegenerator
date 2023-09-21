@@ -1,4 +1,4 @@
-const BASE_URL = 'https://invoicegenerator.onrender.com/'; // Adjust to your frontend URL
+const BASE_URL = 'http://localhost:3001/'; // Adjust to your frontend URL
 
 
 export async function generatePDF(invoiceData) {

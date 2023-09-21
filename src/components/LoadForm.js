@@ -169,6 +169,11 @@ const LoadForm = () => {
       link.download = 'invoice.pdf';
       link.click();
       URL.revokeObjectURL(blobUrl);
+  
+      // Reset relevant states
+      setShowPDFPreview(false);
+      setGeneratedPDF(null);
+      setFormSubmitted(false);
     }
   };
 
