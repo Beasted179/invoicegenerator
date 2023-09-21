@@ -15,7 +15,6 @@ const generateInvoice = async (req, res) => {
       overAllNote
     } = req.body;
 
-    // Calculate the total amount before deductions
     const totalBeforeDeductions = loads.reduce(
       (total, load) => total + parseFloat(load.amount),
       0
@@ -32,22 +31,6 @@ const generateInvoice = async (req, res) => {
       const deductionAmount = parseFloat(deduction.amount);
       totalDeductions += deductionAmount;
     });
-
-    // Determine the scenario and calculate the calculatedAmount and deductionDescription
-    if (isEightPercentChecked) {
-      const subtractFifty = 50 * loadsAdded; // Minus $50 per load
-      calculatedAmount = totalBeforeDeductions - subtractFifty;
-      const eightPercDeduction = calculatedAmount * 0.08; // 8% deduction
-      deductionDescription = '$50 deduction per load for 8% scenario';
-      totalAfterDeductions =
-        calculatedAmount - eightPercDeduction - insurance - cashAdvance - totalDeductions;
-    } else if (isThirtyPercentChecked) {
-      // Calculate the amount given to the driver (30%)
-      const amountToDriver = totalBeforeDeductions * 0.3; // 30% to driver
-      totalAfterDeductions = amountToDriver - cashAdvance - insurance - totalDeductions;
-    } else {
-      return res.status(400).send('Invalid scenario');
-    }
 
     let doc = new PDFDocument({ margin: 30, size: "A4" });
     res.setHeader("Content-Type", "application/pdf");
@@ -70,7 +53,7 @@ const generateInvoice = async (req, res) => {
     doc.text("Phone: (323) 605-2680", { align: "center" });
     doc.text(`${driverName}`, { align: "left" });
     doc.text(`${dateCreated}`, { align: "right" });
-    
+
     // Create a table
     const table = {
       title: "Invoice Details",
@@ -89,24 +72,42 @@ const generateInvoice = async (req, res) => {
     const dollarSignWidth = doc.widthOfString("$");
 
     if (isEightPercentChecked) {
-      const fiftyDeductionText = `- $50 x ${loadsAdded.toFixed(2)} `;
-      const eightPercDeductionText = ` ${calculatedAmount -
-        eightPercDeduction.toFixed(2)}`;
-      doc.text("$50 per load", { width: 200, align: "left" });
-      doc.text(fiftyDeductionText, { width: 200, align: "left" });
-      const calculatedAmountText = `$${calculatedAmount.toFixed(2)}`;
-      doc.text(calculatedAmountText, {
-        width: 200 + dollarSignWidth,
-        align: "left",
-      });
-      doc.text("Payroll Deduction 8%", { width: 200, align: "left" });
-      doc.text(`- $${eightPercDeduction.toFixed(2)}`, {
-        width: 200,
-        align: "left",
-      });
+      let totalDeductionAmount = 0; // Total deduction amount
+    
+      if (deductions.length > 0) {
+        doc.text("Deductions:", { width: 200, align: "left" });
+        deductions.forEach((deduction) => {
+          const deductionAmount = parseFloat(deduction.amount);
+          const deductionText = `- ${deduction.name}: $${deductionAmount.toFixed(2)}`;
+          doc.text(deductionText, {
+            width: 200 + dollarSignWidth,
+            align: "left",
+          });
+          totalDeductionAmount += deductionAmount; // Add deductionAmount to the total
+        });
+      }
+    
+      // 8% Scenario Calculations
+      const subtractFifty = 50 * loadsAdded; // Minus $50 per load
+      calculatedAmount = totalBeforeDeductions - subtractFifty;
+      const eightPercDeduction = calculatedAmount * 0.08; // 8% deduction
+      deductionDescription = '$50 deduction per load for 8% scenario';
+    
+      console.log('Total Before Deductions:', totalBeforeDeductions);
+      console.log('Subtract Fifty:', subtractFifty);
+      console.log('Calculated Amount:', calculatedAmount);
+      console.log('8% Deduction Amount:', eightPercDeduction);
+      console.log('Total Deduction Amount:', totalDeductionAmount);
+      
+      // Correct order of subtraction
+      totalAfterDeductions =
+        calculatedAmount - eightPercDeduction - totalDeductionAmount - insurance - cashAdvance;
+    
+      console.log('Total After Deductions:', totalAfterDeductions);
     }
-    if (isThirtyPercentChecked) {
-      // Calculate the total amount before deductions
+    
+     else if (isThirtyPercentChecked) {
+      // 30% Scenario Calculations
       const totalBeforeDeductions = loads.reduce(
         (total, load) => total + parseFloat(load.amount),
         0
@@ -114,24 +115,31 @@ const generateInvoice = async (req, res) => {
     
       // Calculate the amount given to the driver (30%)
       const amountToDriver = totalBeforeDeductions * 0.3; // 30% to driver
-        console.log(amountToDriver)
-      // Subtract cash advance and insurance from the amount given to the driver
-      totalAfterDeductions = amountToDriver - cashAdvance - insurance;
-        console.log(totalAfterDeductions)
-    }
-    if (deductions.length > 0) {
-      doc.text("Deductions:", { width: 200, align: "left" });
-      console.log(deductions)
-      deductions.forEach((deduction) => {
-        const deductionText = `- ${deduction.name}: $${deduction.amount.toFixed(2)}`;
-        doc.text(deductionText, {
-          width: 200 + dollarSignWidth,
-          align: "left",
-        });
-      });
-    }
-    
 
+      // Deductions for 30% Scenario
+      let totalDeductionAmount = 0; // Total deduction amount
+      if (deductions.length > 0) {
+        doc.text("Deductions:", { width: 200, align: "left" });
+        deductions.forEach((deduction) => {
+          const deductionAmount = parseFloat(deduction.amount);
+          const deductionText = `- ${deduction.name}: $${deductionAmount.toFixed(2)}`;
+          doc.text(deductionText, {
+            width: 200 + dollarSignWidth,
+            align: "left",
+          });
+          totalDeductionAmount += deductionAmount; // Add deductionAmount to the total
+        });
+      }
+    
+      // Subtract cash advance, insurance, and total deductions from the amount given to the driver
+      totalAfterDeductions = amountToDriver - cashAdvance - insurance - totalDeductionAmount;
+    } else {
+      return res.status(400).send('Invalid scenario');
+    }
+
+    // Continue with the rest of the code for both scenarios...
+    
+    // Cash Advance and Insurance
     const cashAdvanceText = `- $${cashAdvance}`;
     doc.text(`Cash Advance:`, { width: 200, align: "left" });
     doc.text(cashAdvanceText, {
@@ -160,6 +168,7 @@ const generateInvoice = async (req, res) => {
         align: "left",
       });
     }
+    
     doc.end();
   } catch (error) {
     console.error('Error generating PDF:', error);
